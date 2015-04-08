@@ -35,3 +35,4 @@ The [first test](https://github.com/Illyism/KitchenLed/blob/master/test/rainbow/
 
 The next test is to control the LEDs individually, it's a rainbow mode but in a [wave](https://github.com/Illyism/KitchenLed/blob/master/test/wave/wave.pde).
 
+And to start with real cases, there is a [progress timer](https://github.com/Illyism/KitchenLed/blob/master/test/progress/progress.pde) that shows progress from red to green for a 30 second timer.
