@@ -31,12 +31,7 @@ PREFIX ➜ 1st LED Red ➜ 1st LED Green ➜ 1st LED Blue ➜ ... ➜ 60th LED R
 
 With the first hardware part completed, we can look over at sending data from a computer, raspberry pi or any other device to Arduino using the COM port.
 
-The [proof of concept](https://github.com/Illyism/KitchenLed/blob/master/test/rainbow/rainbow.pde) starts with cycling the LEDs in rainbow mode.
+The [first test](https://github.com/Illyism/KitchenLed/blob/master/test/rainbow/rainbow.pde) starts with cycling the LEDs in rainbow mode. All the LEDs are in the same color.
 
-1. Open the COM port
-2. Write prefix
-3. Go to the next hue in HSB
-4. Set the GUI background
-5. Convert to RGB and for each LED send the red byte
-6. Send the green byte
-7. Send the blue byte
+The next test is to control the LEDs individually, it's a rainbow mode but in a [wave](https://github.com/Illyism/KitchenLed/blob/master/test/wave/wave.pde).
+
