@@ -22,6 +22,8 @@ You send 24 bits (8 red, 8 green, 8 blue) for one LED, then wait more than 50us 
 
 ### Arduino
 
+#### LED Arduino
+
 ![](http://i.il.ly/kitchenled/arduino.jpg)
 
 We're using an Arduino to control the LEDs. We've stripped out the JST and placed them in a breadboard and wired a VCC, GND and one datapin on pin **13**.
@@ -32,6 +34,15 @@ The arduino listens to a prefix `0x41, 0x64, 'N', 'M', 'C', 'T'` to go in LED wr
 
 PREFIX ➜ 1st LED Red ➜ 1st LED Green ➜ 1st LED Blue ➜ ... ➜ 60th LED Red ➜ 60th LED Green ➜ 60th LED Blue
 
+#### Temperature Arduino
+
+A second Arduino is responsible for reading temperature and passing that data on via simple serial communication. We decided on the [DS18B20 Digital Temperature sensor](https://iprototype.nl/products/components/sensors/waterproof-DS18B20-digital-temp-sensor) for this. Datapin **2** is used for communication.
+
+Wire Color | Function  | Notes
+---------- | --------  | -----
+Red        | GND       | Can be used as power supply but routed to 0V since Yellow can carry power as well.
+Black      | GND       | Ground. 0V.
+Yellow     | Data, Vcc | 3V <= nV <= 5V, functions as both power supply and a data wire.
 
 ### Processing
 
