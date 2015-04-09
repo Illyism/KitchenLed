@@ -2,6 +2,12 @@
 
 ## Hardware
 
+### Libraries
+
+All necessary libraries can be found in /libraries. You should import these libraries. 
+
+Please note that both DallasTemperature and OneWire required a fix in order to compile so you must use the libraries from the project and not the vanilla ones from elsewhere.
+
 ### LEDs
 
 We are using a [WS2812 LED RGB Strip](https://www.sparkfun.com/products/12025) as our LED array. It's 1 meter long and has 60 leds. The [WS2812](http://i.il.ly/kitchenled/WS2812.pdf) is really simple to use, it has no clock pin like the WS2801 so it means it's more time-dependant but simpler.
