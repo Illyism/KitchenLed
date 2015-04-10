@@ -20,11 +20,21 @@ Green      | Data     | Serial data in or out. Look at arrows and labels on stri
 
 You send 24 bits (8 red, 8 green, 8 blue) for one LED, then wait more than 50us and it will set the first LED to your color. You can control the whole strip at once as well by sending 24 bits for your amount of leds. So in our case with 60 LEDs it would count up to 1440 bits.
 
+### Temperature
+
+We decided on the [DS18B20 Digital Temperature sensor](https://iprototype.nl/products/components/sensors/waterproof-DS18B20-digital-temp-sensor) for this. Datapin **2** is used for communication.
+
+Wire Color | Function  | Notes
+---------- | --------  | -----
+Red        | GND       | Can be used as power supply but routed to 0V since Yellow can carry power as well.
+Black      | GND       | Ground. 0V.
+Yellow     | Data, Vcc | 3V <= nV <= 5V, functions as both power supply and a data wire.
+
 ### Arduino
 
 #### LED Arduino
 
-![](http://i.il.ly/kitchenled/arduino.jpg)
+![](https://raw.github.com/Illyism/KitchenLed/master/Schematics/LEDStrip_bb.png)
 
 We're using an Arduino to control the LEDs. We've stripped out the JST and placed them in a breadboard and wired a VCC, GND and one datapin on pin **13**.
 
@@ -36,13 +46,9 @@ PREFIX ➜ 1st LED Red ➜ 1st LED Green ➜ 1st LED Blue ➜ ... ➜ 60th LED R
 
 #### Temperature Arduino
 
-A second Arduino is responsible for reading temperature and passing that data on via simple serial communication. We decided on the [DS18B20 Digital Temperature sensor](https://iprototype.nl/products/components/sensors/waterproof-DS18B20-digital-temp-sensor) for this. Datapin **2** is used for communication.
+![](https://raw.github.com/Illyism/KitchenLed/master/Schematics/Temperature_bb.png)
 
-Wire Color | Function  | Notes
----------- | --------  | -----
-Red        | GND       | Can be used as power supply but routed to 0V since Yellow can carry power as well.
-Black      | GND       | Ground. 0V.
-Yellow     | Data, Vcc | 3V <= nV <= 5V, functions as both power supply and a data wire.
+A second Arduino is responsible for reading temperature and passing that data on via simple serial communication. 
 
 ### Processing
 
