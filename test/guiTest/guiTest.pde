@@ -31,6 +31,12 @@ void setup() {
      .setSize(60, height/2-20)
      .setRange(0,150)
      ;
+     
+  cp5.addSlider("time")
+     .setPosition(width/2,20)
+     .setSize(width/2, height-20)
+     .setRange(0,150)
+     ;
   
   cp5.addTextlabel("labelActual")
                     .setText("Actual temperature")
@@ -63,14 +69,10 @@ void draw() {
   
   t.setValue(c.toString());
   t.draw(this);
-  t.setPosition(mouseX, mouseY);
+  t.setPosition(width/2, 5);
 }
 
 void slider(float theColor) {
   myColor = color(theColor);
   println("a slider event. setting background to "+theColor);
-}
-
-void mousePressed() {
-  c.reset();
 }
