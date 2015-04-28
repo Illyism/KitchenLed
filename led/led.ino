@@ -13,7 +13,7 @@
 #include "Adafruit_NeoPixel.h"
 
 // DEFINITIONS
-#define ONE_WIRE_BUS 2
+#define ONE_WIRE_BUS 4
 
 #define STARTCOLOR 0xFFFFFF  // LED colors at start
 #define BLACK      0x000000  // LED color BLACK
@@ -21,8 +21,8 @@
 #define DATAPIN    13        // Datapin
 #define LEDCOUNT   60       // Number of LEDs used for boblight
 #define SHOWDELAY  20       // Delay in micro seconds before showing      
-#define BAUDRATE   38400    // Serial port speed
-#define BRIGHTNESS 100        // Max. brightness in %
+#define BAUDRATE   115200    // Serial port speed
+#define BRIGHTNESS 80        // Max. brightness in %
 
 const char prefix[] = {0x41, 0x64, 'N', 'M', 'C', 'T'};  // Start prefix
 char buffer[sizeof(prefix)]; // Temp buffer for receiving prefix data 
@@ -44,7 +44,8 @@ int state;                   // Define current state
 
 int readSerial;           // Read Serial data (1)
 int currentLED;           // Needed for assigning the color to the right LED
-
+unsigned long savedTime;
+unsigned long totalTime = 5000;
 
 // Init Temperature
 OneWire oneWire(ONE_WIRE_BUS);
@@ -63,6 +64,8 @@ void setup()
   
   state = STATE_WAITING;    // Initial state: Waiting for prefix
   sensors.begin();
+  
+  savedTime = millis();
 }
 
 
@@ -78,7 +81,11 @@ void loop()
         if ( readSerial == prefix[0] )   // if this character is 1st prefix char
           { state = STATE_DO_PREFIX; }   // then set state to handle prefix
       } else {
-          printTemperature(); 
+          unsigned long passedTime = millis() - savedTime;
+          if (passedTime > totalTime) {
+            printTemperature(); 
+            savedTime = millis();
+          }
       }
       break;
       
@@ -119,7 +126,6 @@ void loop()
           
           state = STATE_WAITING;         // Reset to waiting ...
           currentLED = 0;                // and go to LED one
-          sensors.requestTemperatures();
           
           break;                         // and exit ... and do it all over again
       }
@@ -150,5 +156,6 @@ void setAllLEDs(uint32_t color, int wait)
 
 
 void printTemperature() {
+  sensors.requestTemperatures();
   Serial.print(sensors.getTempCByIndex(0));
 }

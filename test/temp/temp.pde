@@ -12,7 +12,7 @@ void setup() {
   println(Serial.list());
 
   // Open the port you are using at the rate you want:
-  arduino = new Serial(this, Serial.list()[0], 38400);
+  arduino = new Serial(this, Serial.list()[0], 115200);
   
   colorMode(HSB);
   fillArray();
