@@ -110,12 +110,8 @@ void draw() {
   textLabel.draw(this);
   textLabel.setPosition(width/2, 5);
 
-  if(actualTime <= 1) {
-    actualTime = 1;
-  } else {
-    actualTime = (targetTime - controlTimer.minute() + (controlTimer.hour() * 60) );
-  }
-
+  actualTime = (targetTime - controlTimer.second() + controlTimer.minute()*60);
+  println(controlTimer.second() + controlTimer.minute()*60);
   fillArray();
   displayLeds();
 }
@@ -134,6 +130,7 @@ void getTemperature() {
   }
   actualTemp = (int) temperature;
   cp5.getController("actualTemp").setValue(actualTemp);
+  cp5.getController("time").setValue(actualTime);
 }
 
 
@@ -148,7 +145,7 @@ void fillArray() {
     colarray[i] = white_space;
   }
   
-  float actualTimeLed = targetTime -  map(actualTime, 0, targetTime,0, LED_AMOUNT);
+  float actualTimeLed = LED_AMOUNT -  map(actualTime, 0, targetTime,0, LED_AMOUNT);
   float actualTempLed = map(actualTemp, 0, MAX_RANGE, 0, LED_AMOUNT);
   float targetTempLed = map(targetTemp, 0, MAX_RANGE, 0, LED_AMOUNT);
 
