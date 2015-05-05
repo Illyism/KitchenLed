@@ -29,6 +29,7 @@ byte[] prefix = new byte[] {0x41, 0x64, 'N', 'M', 'C', 'T'};
 color[] colarray = new color[60];
 int LED_AMOUNT = 60;
 
+color timeColor = color(50, 50, 50);
 color target = color(0,0,255);
 color white_space = color(0,0,0);
 color indicator = color(255,0,0);
@@ -140,14 +141,11 @@ void fillArray() {
   float actualTempLed = map(actualTemp, 0, MAX_RANGE, 0, LED_AMOUNT);
   float targetTempLed = map(targetTemp, 0, MAX_RANGE, 0, LED_AMOUNT);
 
-
   actualTempLed = min(actualTempLed, LED_AMOUNT - 1);
   actualTempLed = max(actualTempLed, 0);
 
   targetTempLed = min(targetTempLed, LED_AMOUNT - 2);
   targetTempLed = max(targetTempLed, 1);
-
-  println(targetTemp, targetTempLed);
 
   colarray[int(targetTempLed)] = target;
   colarray[int(targetTempLed) - 1] = target;
