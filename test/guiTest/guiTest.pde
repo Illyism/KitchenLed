@@ -10,6 +10,9 @@ int actualTemp = 50;
 int sliderTicks1 = 100;
 int sliderTicks2 = 30;
 
+int actualTime = 0;
+int targetTime = 80;
+
 ControlTimer controlTimer;
 Textlabel textLabel;
 
@@ -78,12 +81,13 @@ void setupCP5() {
   
   // reposition the Label for controller 'slider'
   cp5.getController("targetTemp").getValueLabel().align(ControlP5.BOTTOM, ControlP5.RIGHT).setPaddingX(0);
+  cp5.getController("actualTemp").getValueLabel().align(ControlP5.BOTTOM, ControlP5.RIGHT).setPaddingX(0);
   cp5.getController("targetTemp").getCaptionLabel().hide();
 
 
   controlTimer = new ControlTimer();
   textLabel = new Textlabel(cp5,"--",100,100);
-  controlTimer.setSpeedOfTime(-1);
+  controlTimer.setSpeedOfTime(+1);
 }
 
 void setupArduino() {
@@ -105,6 +109,12 @@ void draw() {
   textLabel.setValue(controlTimer.toString());
   textLabel.draw(this);
   textLabel.setPosition(width/2, 5);
+
+  if(actualTime <= 1) {
+    actualTime = 1;
+  } else {
+    actualTime = (targetTime - controlTimer.minute() + (controlTimer.hour() * 60) );
+  }
 
   fillArray();
   displayLeds();
@@ -137,15 +147,26 @@ void fillArray() {
   for (int i = 0; i < LED_AMOUNT; ++i) {
     colarray[i] = white_space;
   }
-
+  
+  float actualTimeLed = targetTime -  map(actualTime, 0, targetTime,0, LED_AMOUNT);
   float actualTempLed = map(actualTemp, 0, MAX_RANGE, 0, LED_AMOUNT);
   float targetTempLed = map(targetTemp, 0, MAX_RANGE, 0, LED_AMOUNT);
 
+  actualTimeLed = min(actualTimeLed, LED_AMOUNT - 1);
+  actualTimeLed = max(actualTimeLed, 0);
+  
+  println(actualTime);
+  println(targetTime);
+  
   actualTempLed = min(actualTempLed, LED_AMOUNT - 1);
   actualTempLed = max(actualTempLed, 0);
 
   targetTempLed = min(targetTempLed, LED_AMOUNT - 2);
   targetTempLed = max(targetTempLed, 1);
+
+  for (int i = 0; i < int(actualTimeLed); ++i){
+    colarray[i] = timeColor;
+  }
 
   colarray[int(targetTempLed)] = target;
   colarray[int(targetTempLed) - 1] = target;
