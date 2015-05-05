@@ -45,7 +45,7 @@ int state;                   // Define current state
 int readSerial;           // Read Serial data (1)
 int currentLED;           // Needed for assigning the color to the right LED
 unsigned long savedTime;
-unsigned long totalTime = 2000;
+unsigned long totalTime = 10000;
 
 // Init Temperature
 OneWire oneWire(ONE_WIRE_BUS);
