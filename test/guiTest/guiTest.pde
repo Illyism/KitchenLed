@@ -26,6 +26,8 @@ Slider abc;
 float temperature = 0;
 int MAX_RANGE = 100;
 
+int speedOfTime = 0;
+
 // Arduino
 Serial arduino;  
 byte[] prefix = new byte[] {0x41, 0x64, 'N', 'M', 'C', 'T'};
@@ -109,7 +111,7 @@ void setupCP5() {
 
   controlTimer = new ControlTimer();
   textLabel = new Textlabel(cp5,"--", width/2 + width/5, height/2);
-  controlTimer.setSpeedOfTime(+1);
+  controlTimer.setSpeedOfTime(0);
 }
 
 void setupArduino() {
@@ -117,6 +119,15 @@ void setupArduino() {
   arduino = new Serial(this, Serial.list()[0], 115200);
 }
 
+public void Play(int theValue) {
+  if(speedOfTime == 0){
+    speedOfTime = 1;
+    controlTimer.setSpeedOfTime(1);
+  } else {
+    speedOfTime = 0;
+    controlTimer.setSpeedOfTime(0);
+  }
+}
 
 void draw() {
   background(0);
@@ -156,7 +167,7 @@ void drawTemperatureGraph(ArrayList<Points> points, int strokeWeight, int stroke
     Points P = (Points)points.get(i);
     vertex(P.x, P.y);
     if (P.x<60)points.remove(i);
-    if(frameCount % 30 == 0){
+    if(frameCount % 10 == 0){
       P.x--;
     }
   }
