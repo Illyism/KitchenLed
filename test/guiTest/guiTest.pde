@@ -11,10 +11,12 @@ int sliderTicks1 = 100;
 int sliderTicks2 = 30;
 
 int actualTime = 0;
-int targetTime = 80;
+int targetTime = 10;
+boolean overTime = false;
 
 ControlTimer controlTimer;
 Textlabel textLabel;
+Knob knob;
 
 Slider abc;
 
@@ -32,7 +34,7 @@ byte[] prefix = new byte[] {0x41, 0x64, 'N', 'M', 'C', 'T'};
 color[] colarray = new color[60];
 int LED_AMOUNT = 60;
 
-color timeColor = color(50, 50, 50);
+color timeColor = color(255, 255, 255);
 color target = color(0,0,255);
 color white_space = color(0,0,0);
 color indicator = color(255,0,0);
@@ -61,13 +63,7 @@ void setupCP5() {
      .setSize(60, height/2-20)
      .setRange(0,MAX_RANGE)
      ;
-     
-  cp5.addSlider("time")
-     .setPosition(width/2,20)
-     .setSize(width/2, height-20)
-     .setRange(0,MAX_RANGE)
-     ;
-  
+
   cp5.addTextlabel("labelActual")
                     .setText("Actual temperature")
                     .setPosition(0,height/2+5)
@@ -84,9 +80,19 @@ void setupCP5() {
   cp5.getController("actualTemp").getValueLabel().align(ControlP5.BOTTOM, ControlP5.RIGHT).setPaddingX(0);
   cp5.getController("targetTemp").getCaptionLabel().hide();
 
+  knob = cp5.addKnob("knob1")
+                 .setRange(0,targetTime)
+                 .setValue(0)
+                 .setPosition(width/2+width/5 - 75,height/2 - 75)
+                 .setRadius(100)
+                 .setNumberOfTickMarks(10)
+                 .setTickMarkLength(4)
+                 .snapToTickMarks(true)
+                 .setColorForeground(color(255))
+                 .setDragDirection(Knob.HORIZONTAL);
 
   controlTimer = new ControlTimer();
-  textLabel = new Textlabel(cp5,"--",100,100);
+  textLabel = new Textlabel(cp5,"--", width/2 + width/5, height/2);
   controlTimer.setSpeedOfTime(+1);
 }
 
@@ -108,10 +114,12 @@ void draw() {
   
   textLabel.setValue(controlTimer.toString());
   textLabel.draw(this);
-  textLabel.setPosition(width/2, 5);
 
-  actualTime = (targetTime - controlTimer.second() + controlTimer.minute()*60);
-  println(controlTimer.second() + controlTimer.minute()*60);
+  actualTime = controlTimer.second() + controlTimer.minute() * 60;
+  if (actualTime > targetTime) overTime = true;
+  knob.setValue(actualTime);
+  knob.setValueLabel(controlTimer.toString());
+
   fillArray();
   displayLeds();
 }
@@ -139,30 +147,40 @@ void slider(float theColor) {
   println("a slider event. setting background to "+theColor);
 }
 
-
 void fillArray() {
   for (int i = 0; i < LED_AMOUNT; ++i) {
     colarray[i] = white_space;
   }
   
+<<<<<<< HEAD
   float actualTimeLed = LED_AMOUNT -  map(actualTime, 0, targetTime,0, LED_AMOUNT);
+=======
+  float actualTimeLed = map(actualTime, 0, targetTime, 0, LED_AMOUNT);
+>>>>>>> 3a76c1625fad0ffdb8d7296c0d0bc5cf5446ebc8
   float actualTempLed = map(actualTemp, 0, MAX_RANGE, 0, LED_AMOUNT);
   float targetTempLed = map(targetTemp, 0, MAX_RANGE, 0, LED_AMOUNT);
 
   actualTimeLed = min(actualTimeLed, LED_AMOUNT - 1);
   actualTimeLed = max(actualTimeLed, 0);
-  
-  println(actualTime);
-  println(targetTime);
-  
+    
   actualTempLed = min(actualTempLed, LED_AMOUNT - 1);
   actualTempLed = max(actualTempLed, 0);
 
   targetTempLed = min(targetTempLed, LED_AMOUNT - 2);
   targetTempLed = max(targetTempLed, 1);
 
-  for (int i = 0; i < int(actualTimeLed); ++i){
-    colarray[i] = timeColor;
+  if (overTime == false) {
+    for (int i = 0; i < int(actualTimeLed); ++i){
+      colarray[i] = timeColor;
+    }
+  } else {
+    color c = timeColor;
+    if (actualTime % 2 == 0) {
+      c = white_space;
+    }
+    for (int i = 0; i < LED_AMOUNT; ++i) {
+      colarray[i] = c;
+    }
   }
 
   colarray[int(targetTempLed)] = target;
