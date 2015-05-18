@@ -5,6 +5,7 @@ import processing.serial.*;
 ControlP5 cp5;
 int myColor = color(0,0,0);
 ArrayList<Points> temperatureGraph = new ArrayList();
+ArrayList<Points> temperatureGraphTarget = new ArrayList();
 int targetTemp = 30;
 int actualTemp = 50;
 int sliderTicks1 = 100;
@@ -53,25 +54,25 @@ void setupCP5() {
   // add a horizontal sliders, the value of this slider will be linked
   // to variable 'sliderValue' 
   cp5.addSlider("targetTemp")
-     .setPosition(0,20)
-     .setSize(60, height/2-20)
+     .setPosition(width/2-60,20)
+     .setSize(60, height-20)
      .setRange(0,MAX_RANGE)
      ;
 
   cp5.addSlider("actualTemp")
-     .setPosition(0,20+height/2)
-     .setSize(60, height/2-20)
+     .setPosition(0,20)
+     .setSize(60, height-20)
      .setRange(0,MAX_RANGE)
      ;
 
   cp5.addTextlabel("labelActual")
                     .setText("Actual temperature")
-                    .setPosition(0,height/2+5)
+                    .setPosition(0,5)
                     ;
 
   cp5.addTextlabel("labelTarget")
                     .setText("Target temperature")
-                    .setPosition(0,5)
+                    .setPosition(width/2-90,5)
                     .setLock(true)
                     ;
   
@@ -128,14 +129,14 @@ void draw() {
   setTemperatureGraph();
 }
 
-void drawTemperatureGraph(){
+void drawTemperatureGraph(ArrayList<Points> points){
   noFill();
   stroke(255);
   beginShape();
-  for (int i=0;i<temperatureGraph.size();i++) {
-    Points P = (Points)temperatureGraph.get(i);
+  for (int i=0;i<points.size();i++) {
+    Points P = (Points)points.get(i);
     vertex(P.x, P.y);
-    if (P.x<0)temperatureGraph.remove(i);
+    if (P.x<0)points.remove(i);
     P.x--;
   }
   endShape();
@@ -143,11 +144,12 @@ void drawTemperatureGraph(){
   stroke(0);
 }
 
-void setTemperatureGraph() {
+void setTemperatureGraph(ArrayList<Points> points, Float value) {
   //0,height/2+20,width/2,height/2-20
-  float t = map(actualTemp,0,100,0,height-height/2+20);
+  //actualTemp
+  float t = map(value,0,100,0,height-20);
   Points P = new Points(width/2, height-t);
-  temperatureGraph.add(P);
+  points.add(P);
 }
 
 class Points {
