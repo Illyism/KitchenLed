@@ -16,6 +16,7 @@ boolean overTime = false;
 
 ControlTimer controlTimer;
 Textlabel textLabel;
+Knob knob;
 
 Slider abc;
 
@@ -62,13 +63,7 @@ void setupCP5() {
      .setSize(60, height/2-20)
      .setRange(0,MAX_RANGE)
      ;
-     
-  cp5.addSlider("time")
-     .setPosition(width/2,20)
-     .setSize(width/2, height-20)
-     .setRange(0,targetTime)
-     ;
-  
+
   cp5.addTextlabel("labelActual")
                     .setText("Actual temperature")
                     .setPosition(0,height/2+5)
@@ -85,9 +80,19 @@ void setupCP5() {
   cp5.getController("actualTemp").getValueLabel().align(ControlP5.BOTTOM, ControlP5.RIGHT).setPaddingX(0);
   cp5.getController("targetTemp").getCaptionLabel().hide();
 
+  knob = cp5.addKnob("knob1")
+                 .setRange(0,targetTime)
+                 .setValue(0)
+                 .setPosition(width/2+width/5 - 75,height/2 - 75)
+                 .setRadius(100)
+                 .setNumberOfTickMarks(10)
+                 .setTickMarkLength(4)
+                 .snapToTickMarks(true)
+                 .setColorForeground(color(255))
+                 .setDragDirection(Knob.HORIZONTAL);
 
   controlTimer = new ControlTimer();
-  textLabel = new Textlabel(cp5,"--",100,100);
+  textLabel = new Textlabel(cp5,"--", width/2 + width/5, height/2);
   controlTimer.setSpeedOfTime(+1);
 }
 
@@ -109,11 +114,10 @@ void draw() {
   
   textLabel.setValue(controlTimer.toString());
   textLabel.draw(this);
-  textLabel.setPosition(width/2, 5);
 
   actualTime = controlTimer.second() + controlTimer.minute() * 60;
   if (actualTime > targetTime) overTime = true;
-  cp5.getController("time").setValue(actualTime);
+  knob.setValue(actualTime);
 
   fillArray();
   displayLeds();
