@@ -4,14 +4,14 @@ import processing.serial.*;
 // Gui
 ControlP5 cp5;
 int myColor = color(0,0,0);
-
+ArrayList<Points> temperatureGraph = new ArrayList();
 int targetTemp = 30;
 int actualTemp = 50;
 int sliderTicks1 = 100;
 int sliderTicks2 = 30;
 
 int actualTime = 0;
-int targetTime = 100;
+int targetTime = 60;
 boolean overTime = false;
 
 ControlTimer controlTimer;
@@ -63,12 +63,6 @@ void setupCP5() {
      .setSize(60, height/2-20)
      .setRange(0,MAX_RANGE)
      ;
-     
-  cp5.addButton("setTime")
-     .setValue(0)
-     .setPosition(100,100)
-     .setSize(200,19)
-     ;
 
   cp5.addTextlabel("labelActual")
                     .setText("Actual temperature")
@@ -93,7 +87,7 @@ void setupCP5() {
                  .setRadius(100)
                  .setNumberOfTickMarks(10)
                  .setTickMarkLength(4)
-                 .snapToTickMarks(true)
+                 .snapToTickMarks(false)
                  .setColorForeground(color(255))
                  .setDragDirection(Knob.HORIZONTAL);
 
@@ -110,6 +104,7 @@ void setupArduino() {
 
 void draw() {
   background(0);
+
 
   getTemperature();
 
@@ -128,12 +123,39 @@ void draw() {
 
   fillArray();
   displayLeds();
+  
+  drawTemperatureGraph();
+  setTemperatureGraph();
 }
 
-public void setTime(int theValue) {
-  println("a button event from colorA: "+theValue);
-  c1 = c2;
-  c2 = color(0,160,100);
+void drawTemperatureGraph(){
+  noFill();
+  stroke(255);
+  beginShape();
+  for (int i=0;i<temperatureGraph.size();i++) {
+    Points P = (Points)temperatureGraph.get(i);
+    vertex(P.x, P.y);
+    if (P.x<0)temperatureGraph.remove(i);
+    P.x--;
+  }
+  endShape();
+  noFill();
+  stroke(0);
+}
+
+void setTemperatureGraph() {
+  //0,height/2+20,width/2,height/2-20
+  float t = map(actualTemp,0,100,0,height-height/2+20);
+  Points P = new Points(width/2, height-t);
+  temperatureGraph.add(P);
+}
+
+class Points {
+  float x, y;
+  Points(float x, float y) {
+    this.x = x;
+    this.y = y;
+  }
 }
 
 void getTemperature() {
