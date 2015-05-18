@@ -42,6 +42,7 @@ color indicator = color(255,0,0);
 
 
 void setup() {
+  smooth();
   size(700,400);
   noStroke();
   setupCP5();
@@ -64,6 +65,18 @@ void setupCP5() {
      .setSize(60, height-20)
      .setRange(0,MAX_RANGE)
      ;
+    
+  cp5.addButton("Stop and set")
+     .setValue(0)
+     .setPosition(width/2+2,2)
+     .setSize(width/4-2,16)
+     ;
+     
+  cp5.addButton("Play")
+     .setValue(0)
+     .setPosition(width/2+2+width/4,2)
+     .setSize(width/4-2,16)
+     ;
 
   cp5.addTextlabel("labelActual")
                     .setText("Actual temperature")
@@ -79,6 +92,8 @@ void setupCP5() {
   // reposition the Label for controller 'slider'
   cp5.getController("targetTemp").getValueLabel().align(ControlP5.BOTTOM, ControlP5.RIGHT).setPaddingX(0);
   cp5.getController("actualTemp").getValueLabel().align(ControlP5.BOTTOM, ControlP5.RIGHT).setPaddingX(0);
+  cp5.getController("Stop and set").getValueLabel().align(ControlP5.CENTER, ControlP5.CENTER).setPaddingX(0);
+  cp5.getController("Play").getValueLabel().align(ControlP5.CENTER, ControlP5.CENTER).setPaddingX(0);
   cp5.getController("targetTemp").getCaptionLabel().hide();
 
   knob = cp5.addKnob("knob1")
@@ -109,10 +124,10 @@ void draw() {
 
   getTemperature();
 
-  fill(targetTemp);
-  rect(0,20,width/2,height/2-20);
-  fill(actualTemp);
-  rect(0,height/2+20,width/2,height/2-20);
+  fill(targetTemp,0,0);
+  rect(0,20,width/2,height/2-10);
+  fill(actualTemp,0,0);
+  rect(0,height/2+10,width/2,height/2-10);
   
   textLabel.setValue(controlTimer.toString());
   textLabel.draw(this);
@@ -125,30 +140,36 @@ void draw() {
   fillArray();
   displayLeds();
   
-  drawTemperatureGraph();
-  setTemperatureGraph();
+  drawTemperatureGraph(temperatureGraphTarget,2,200);
+  drawTemperatureGraph(temperatureGraph, 1,255);
+  
+  setTemperatureGraph(temperatureGraph, actualTemp);
+  setTemperatureGraph(temperatureGraphTarget, targetTemp);  
 }
 
-void drawTemperatureGraph(ArrayList<Points> points){
+void drawTemperatureGraph(ArrayList<Points> points, int strokeWeight, int strokeColor){
   noFill();
-  stroke(255);
+  stroke(strokeColor);
+  strokeWeight(strokeWeight);
   beginShape();
   for (int i=0;i<points.size();i++) {
     Points P = (Points)points.get(i);
     vertex(P.x, P.y);
-    if (P.x<0)points.remove(i);
-    P.x--;
+    if (P.x<60)points.remove(i);
+    if(frameCount % 30 == 0){
+      P.x--;
+    }
   }
   endShape();
   noFill();
   stroke(0);
 }
 
-void setTemperatureGraph(ArrayList<Points> points, Float value) {
+void setTemperatureGraph(ArrayList<Points> points, int value) {
   //0,height/2+20,width/2,height/2-20
   //actualTemp
   float t = map(value,0,100,0,height-20);
-  Points P = new Points(width/2, height-t);
+  Points P = new Points(width/2-60, height-t);
   points.add(P);
 }
 
