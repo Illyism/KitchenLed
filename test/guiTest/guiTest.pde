@@ -11,7 +11,7 @@ int sliderTicks1 = 100;
 int sliderTicks2 = 30;
 
 int actualTime = 0;
-int targetTime = 10;
+int targetTime = 100;
 boolean overTime = false;
 
 ControlTimer controlTimer;
@@ -62,6 +62,12 @@ void setupCP5() {
      .setPosition(0,20+height/2)
      .setSize(60, height/2-20)
      .setRange(0,MAX_RANGE)
+     ;
+     
+  cp5.addButton("setTime")
+     .setValue(0)
+     .setPosition(100,100)
+     .setSize(200,19)
      ;
 
   cp5.addTextlabel("labelActual")
@@ -124,6 +130,12 @@ void draw() {
   displayLeds();
 }
 
+public void setTime(int theValue) {
+  println("a button event from colorA: "+theValue);
+  c1 = c2;
+  c2 = color(0,160,100);
+}
+
 void getTemperature() {
   while (arduino.available() > 0) {
     String inBuffer = arduino.readString();   
@@ -138,7 +150,7 @@ void getTemperature() {
   }
   actualTemp = (int) temperature;
   cp5.getController("actualTemp").setValue(actualTemp);
-  cp5.getController("time").setValue(actualTime);
+  //cp5.getController("time").setValue(actualTime);
 }
 
 
@@ -152,11 +164,8 @@ void fillArray() {
     colarray[i] = white_space;
   }
   
-<<<<<<< HEAD
-  float actualTimeLed = LED_AMOUNT -  map(actualTime, 0, targetTime,0, LED_AMOUNT);
-=======
+
   float actualTimeLed = map(actualTime, 0, targetTime, 0, LED_AMOUNT);
->>>>>>> 3a76c1625fad0ffdb8d7296c0d0bc5cf5446ebc8
   float actualTempLed = map(actualTemp, 0, MAX_RANGE, 0, LED_AMOUNT);
   float targetTempLed = map(targetTemp, 0, MAX_RANGE, 0, LED_AMOUNT);
 
