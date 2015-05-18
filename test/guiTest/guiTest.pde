@@ -11,7 +11,8 @@ int sliderTicks1 = 100;
 int sliderTicks2 = 30;
 
 int actualTime = 0;
-int targetTime = 80;
+int targetTime = 10;
+boolean overTime = false;
 
 ControlTimer controlTimer;
 Textlabel textLabel;
@@ -32,7 +33,7 @@ byte[] prefix = new byte[] {0x41, 0x64, 'N', 'M', 'C', 'T'};
 color[] colarray = new color[60];
 int LED_AMOUNT = 60;
 
-color timeColor = color(50, 50, 50);
+color timeColor = color(255, 255, 255);
 color target = color(0,0,255);
 color white_space = color(0,0,0);
 color indicator = color(255,0,0);
@@ -65,7 +66,7 @@ void setupCP5() {
   cp5.addSlider("time")
      .setPosition(width/2,20)
      .setSize(width/2, height-20)
-     .setRange(0,MAX_RANGE)
+     .setRange(0,targetTime)
      ;
   
   cp5.addTextlabel("labelActual")
@@ -110,11 +111,9 @@ void draw() {
   textLabel.draw(this);
   textLabel.setPosition(width/2, 5);
 
-  if(actualTime <= 1) {
-    actualTime = 1;
-  } else {
-    actualTime = (targetTime - controlTimer.minute() + (controlTimer.hour() * 60) );
-  }
+  actualTime = controlTimer.second() + controlTimer.minute() * 60;
+  if (actualTime > targetTime) overTime = true;
+  cp5.getController("time").setValue(actualTime);
 
   fillArray();
   displayLeds();
@@ -142,30 +141,36 @@ void slider(float theColor) {
   println("a slider event. setting background to "+theColor);
 }
 
-
 void fillArray() {
   for (int i = 0; i < LED_AMOUNT; ++i) {
     colarray[i] = white_space;
   }
   
-  float actualTimeLed = targetTime -  map(actualTime, 0, targetTime,0, LED_AMOUNT);
+  float actualTimeLed = map(actualTime, 0, targetTime, 0, LED_AMOUNT);
   float actualTempLed = map(actualTemp, 0, MAX_RANGE, 0, LED_AMOUNT);
   float targetTempLed = map(targetTemp, 0, MAX_RANGE, 0, LED_AMOUNT);
 
   actualTimeLed = min(actualTimeLed, LED_AMOUNT - 1);
   actualTimeLed = max(actualTimeLed, 0);
-  
-  println(actualTime);
-  println(targetTime);
-  
+    
   actualTempLed = min(actualTempLed, LED_AMOUNT - 1);
   actualTempLed = max(actualTempLed, 0);
 
   targetTempLed = min(targetTempLed, LED_AMOUNT - 2);
   targetTempLed = max(targetTempLed, 1);
 
-  for (int i = 0; i < int(actualTimeLed); ++i){
-    colarray[i] = timeColor;
+  if (overTime == false) {
+    for (int i = 0; i < int(actualTimeLed); ++i){
+      colarray[i] = timeColor;
+    }
+  } else {
+    color c = timeColor;
+    if (actualTime % 2 == 0) {
+      c = white_space;
+    }
+    for (int i = 0; i < LED_AMOUNT; ++i) {
+      colarray[i] = c;
+    }
   }
 
   colarray[int(targetTempLed)] = target;
