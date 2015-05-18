@@ -118,6 +118,7 @@ void draw() {
   actualTime = controlTimer.second() + controlTimer.minute() * 60;
   if (actualTime > targetTime) overTime = true;
   knob.setValue(actualTime);
+  knob.setValueLabel(controlTimer.toString());
 
   fillArray();
   displayLeds();
