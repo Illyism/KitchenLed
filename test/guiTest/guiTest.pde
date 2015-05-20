@@ -11,6 +11,8 @@ int actualTemp = 50;
 int sliderTicks1 = 100;
 int sliderTicks2 = 30;
 
+Timer timer;
+
 int actualTime = 0;
 int targetTime = 60;
 boolean overTime = false;
@@ -68,17 +70,23 @@ void setupCP5() {
      .setRange(0,MAX_RANGE)
      ;
     
-  cp5.addButton("Stop and set")
+  cp5.addButton("PauseTime")
      .setValue(0)
      .setPosition(width/2+2,2)
      .setSize(width/4-2,16)
      ;
      
-  cp5.addButton("Play")
+  cp5.addButton("PlayTime")
      .setValue(0)
      .setPosition(width/2+2+width/4,2)
      .setSize(width/4-2,16)
      ;
+     
+  cp5.addButton("ResetTime")
+     .setValue(0)
+     .setPosition(width/2+2,20)
+     .setSize(width/2-2,16)
+     ;   
 
   cp5.addTextlabel("labelActual")
                     .setText("Actual temperature")
@@ -94,8 +102,8 @@ void setupCP5() {
   // reposition the Label for controller 'slider'
   cp5.getController("targetTemp").getValueLabel().align(ControlP5.BOTTOM, ControlP5.RIGHT).setPaddingX(0);
   cp5.getController("actualTemp").getValueLabel().align(ControlP5.BOTTOM, ControlP5.RIGHT).setPaddingX(0);
-  cp5.getController("Stop and set").getValueLabel().align(ControlP5.CENTER, ControlP5.CENTER).setPaddingX(0);
-  cp5.getController("Play").getValueLabel().align(ControlP5.CENTER, ControlP5.CENTER).setPaddingX(0);
+  //cp5.getController("PauseTime").getValueLabel().align(ControlP5.CENTER, ControlP5.CENTER).setPaddingX(0);
+  //cp5.getController("PlayTIme").getValueLabel().align(ControlP5.CENTER, ControlP5.CENTER).setPaddingX(0);
   cp5.getController("targetTemp").getCaptionLabel().hide();
 
   knob = cp5.addKnob("knob1")
@@ -110,7 +118,6 @@ void setupCP5() {
                  .setDragDirection(Knob.HORIZONTAL);
 
   controlTimer = new ControlTimer();
-  textLabel = new Textlabel(cp5,"--", width/2 + width/5, height/2);
   controlTimer.setSpeedOfTime(0);
 }
 
@@ -119,13 +126,46 @@ void setupArduino() {
   arduino = new Serial(this, Serial.list()[0], 115200);
 }
 
-public void Play(int theValue) {
-  if(speedOfTime == 0){
-    speedOfTime = 1;
-    controlTimer.setSpeedOfTime(1);
-  } else {
-    speedOfTime = 0;
-    controlTimer.setSpeedOfTime(0);
+public void PlayTime(int theValue) {
+  if(frameCount > 1){
+    if(timer != null){
+      timer.start();
+    } else {
+      timer = new Timer(TimerUtil.minutesFromMilli(int(knob.getValue())));
+      timer.start();
+    }
+    println(theValue);
+  }
+}
+
+public void PauseTime(int theValue) {
+  if(frameCount > 1){
+    if(timer != null){
+      if(!timer.paused){
+        timer.pause();
+      }
+    }
+    println(theValue);
+  }
+}
+
+public void ResetTime(int theValue) {
+  if(frameCount > 1){
+    if(timer != null){
+      timer = null;
+      knob.setRange(0,targetTime);
+      knob.setValue(0);
+    }
+    println(theValue);
+  }
+}
+
+void knob1(int theValue) {
+  if(frameCount > 1){
+    //background(color(theValue));
+    println("a knob event. setting background to "+theValue);
+    //knob.setValueLabel(TimerUtil.milliTimeFmt(60));
+    knob.setCaptionLabel(TimerUtil.milliTimeFmt(TimerUtil.minutesFromMilli(theValue))); 
   }
 }
 
@@ -135,23 +175,30 @@ void draw() {
 
   getTemperature();
 
-  fill(targetTemp,0,0);
+  fill(100+ targetTemp,0,0);
   rect(0,20,width/2,height/2-10);
-  fill(actualTemp,0,0);
+  fill(100 + actualTemp,0,0);
   rect(0,height/2+10,width/2,height/2-10);
   
-  textLabel.setValue(controlTimer.toString());
-  textLabel.draw(this);
-
-  actualTime = controlTimer.second() + controlTimer.minute() * 60;
-  if (actualTime > targetTime) overTime = true;
-  knob.setValue(actualTime);
-  knob.setValueLabel(controlTimer.toString());
-
-  fillArray();
-  displayLeds();
+  if(timer != null){
+    if(!timer.paused){
+      knob.setValue(timer.elapsedTime);
+      knob.setRange(0, timer.totalTime);
+      knob.setValueLabel(TimerUtil.milliTimeFmt(timer.elapsedTime));
+      knob.setCaptionLabel(TimerUtil.milliTimeFmt(timer.elapsedTime));
+    
+      println(timer.elapsedTime);
+      println(TimerUtil.milliTimeFmt(timer.elapsedTime) + "/" + TimerUtil.milliTimeFmt(timer.totalTime));
   
-  drawTemperatureGraph(temperatureGraphTarget,2,200);
+      if (timer.isFinished()) {
+        timer.pause();
+      }
+    }
+    fillArray();
+    displayLeds(); 
+  }
+  
+  drawTemperatureGraph(temperatureGraphTarget,1,50);
   drawTemperatureGraph(temperatureGraph, 1,255);
   
   setTemperatureGraph(temperatureGraph, actualTemp);
@@ -160,7 +207,7 @@ void draw() {
 
 void drawTemperatureGraph(ArrayList<Points> points, int strokeWeight, int strokeColor){
   noFill();
-  stroke(strokeColor);
+  stroke(0,0,strokeColor);
   strokeWeight(strokeWeight);
   beginShape();
   for (int i=0;i<points.size();i++) {
@@ -221,7 +268,7 @@ void fillArray() {
   }
   
 
-  float actualTimeLed = map(actualTime, 0, targetTime, 0, LED_AMOUNT);
+  float actualTimeLed = map(timer.elapsedTime, 0, timer.totalTime, 0, LED_AMOUNT);
   float actualTempLed = map(actualTemp, 0, MAX_RANGE, 0, LED_AMOUNT);
   float targetTempLed = map(targetTemp, 0, MAX_RANGE, 0, LED_AMOUNT);
 
@@ -234,7 +281,7 @@ void fillArray() {
   targetTempLed = min(targetTempLed, LED_AMOUNT - 2);
   targetTempLed = max(targetTempLed, 1);
 
-  if (overTime == false) {
+  if (timer.isFinished() == false) {
     for (int i = 0; i < int(actualTimeLed); ++i){
       colarray[i] = timeColor;
     }
